@@ -11,70 +11,24 @@ class Scenario extends Component {
     this.state = {
       arenaWidth: 0,
       arenaHeight: 0,
-      style: {},
     }
     this.arena = React.createRef();
-    this.wall = React.createRef();
   }
 
   componentDidMount() {
-    this.wall.current.addEventListener('transitionend', this.transitionFinished)
     const arena = ReactDOM.findDOMNode(this.arena.current).getBoundingClientRect();
-    console.log(arena)
+    
     this.setState({
       arenaWidth: arena.width,
       arenaHeight: arena.height,
-      style: this.getStyle(arena.height, arena.width)
     })
-  }
-
-  componentWillUnMount() {
-    this.wall.current.removeEventListener('transitionend', this.transitionFinished)
-  }
-
-  transitionFinished = () => {
-    const { userPosition, correctDoor } = this.props;
-
-    if (userPosition === correctDoor) {
-      console.log("Acertou miseravi")
-    } else {
-      console.log("ERRROOOOU")      
-    }
-
-    this.props.getNextQuestion();
-    this.resetAnimation();
-  }
-  
-  getStyle = (arenaHeight, arenaWidth) => {
-    console.log(arenaHeight, arenaWidth)
-    return {
-      transform: `translateY(${arenaHeight  - (arenaWidth * 0.1)}px)`,
-      transition: `5s linear`,
-    }
-  }
-  
-  resetAnimation = () => {
-    this.setState({
-      style: {
-        transform: "translateY(0)",
-        background: 'black',
-      }
-    }, () => {
-      this.restartAnimation();
-    });
-  }
-
-  restartAnimation = () => {
-    this.setState({
-      style: this.getStyle(this.state.arenaHeight, this.state.arenaWidth)
-    });
   }
 
   getSpots = () => {
     const { userPosition } = this.props;
 
     return (
-      <div className="row">
+      <div className="column">
         <div className="spots">
             {userPosition === 0 && (
             <Sprite
@@ -115,28 +69,6 @@ class Scenario extends Component {
     );
   }
 
-  // getWall = () => {
-  //   const { wallPosition } = this.props;
-    
-  //   const amountOfRows = [...Array(9).keys()];
-  //   const rows = amountOfRows.map((value, index) => {
-  //     if (index === wallPosition) {
-  //       return (
-  //         <div className="row">
-  //           <div className="door"></div>
-  //           <div className="door"></div>
-  //           <div className="door"></div>
-  //           <div className="door"></div>
-  //         </div>
-  //       )
-  //     }
-
-  //     return <div className="row"></div>;
-  //   });
-
-  //   return rows;
-  // }
-
   showFeedback = () => {
     if (this.props.answer === true) console.log("Acertou");
     if (this.props.answer === false) console.log("Errou");
@@ -145,11 +77,13 @@ class Scenario extends Component {
   render() {
     return (
       <div className="scenario">
-        {/* {this.getWall()} */}
         <div className="arena" ref={this.arena}>
-        <VelocityComponent animation={{ transform: "translateY(500px)" }} duration={3000}>
-          <div className="wall" ref={this.wall} >{this.props.correctDoor}</div>
-        </VelocityComponent>
+          <Wall 
+            arenaHeight={this.state.arenaHeight} 
+            arenaWidth={this.state.arenaWidth}
+            getNextQuestion={this.props.getNextQuestion}
+            shouldRenderWall={this.props.shouldRenderWall}
+          />
         </div>
         {this.showFeedback()}
         {this.getSpots()}
@@ -159,3 +93,39 @@ class Scenario extends Component {
 }
 
 export default Scenario;
+
+class Wall extends Component {
+  constructor(props) {
+    super(props);
+    this.wall = React.createRef();    
+  }
+  componentDidMount() {
+    this.wall.current.addEventListener('transitionend', this.transitionFinished)
+  }
+
+  componentWillUnMount() {
+    this.wall.current.removeEventListener('transitionend', this.transitionFinished)
+  }
+
+  transitionFinished = () => {    
+    this.props.getNextQuestion();
+  }
+
+  getStyle = () => {
+    if (this.props.shouldRenderWall) {
+      return {
+        transform: `translateX(${-this.props.arenaWidth - (this.props.arenaWidth * 0.1)}px)`,
+        transition: `3s linear`,
+      }
+    }
+
+    return {
+      transform: `translateX(${this.props.arenaWidth * 0.1}px)`,
+      transition: "none",
+    }
+  }
+
+  render() {
+    return <div className="wall" ref={this.wall} style={this.getStyle()}>{this.props.correctDoor}</div>;
+  }
+}

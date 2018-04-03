@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import Scenario from './Scenario';
 import './App.css';
 
-const LEFT = 37;
-const RIGHT = 39;
+const UP = 38;
+const DOWN = 40;
 const LAST_ROW = 8;
 
 class App extends Component {
@@ -12,6 +12,7 @@ class App extends Component {
     this.state = {
       wallPosition: 0,
       userPosition: 0,
+      shouldRenderWall: true,
     }
   }
   componentWillMount() {
@@ -20,12 +21,10 @@ class App extends Component {
 
   componentDidMount() {
     document.addEventListener("keydown", this.moveUser, false);
-    // this.intervalId = setInterval(this.updateWallPosition, 1000);
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this.moveUser, false);
-    // clearInterval(this.intervalId);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -57,10 +56,10 @@ class App extends Component {
 
   moveUser = (event) => {
     switch(event.keyCode) {
-      case LEFT: 
+      case UP: 
         this.setState({userPosition: Math.max(this.state.userPosition - 1, 0)});
         break;
-      case RIGHT:
+      case DOWN:
         this.setState({userPosition: Math.min(this.state.userPosition + 1, 3)});
         break;
       default:
@@ -69,7 +68,12 @@ class App extends Component {
   }
 
   getNextQuestion = () => {
-    this.setState({correctDoor: Math.floor(Math.random() * 4)});
+    this.setState({
+      correctDoor: Math.floor(Math.random() * 4),
+      shouldRenderWall: false,
+    });
+
+    setTimeout(() => this.setState({shouldRenderWall: true}), 10);
   }
 
   render() {
@@ -77,7 +81,13 @@ class App extends Component {
     
     return (
       <div className="world">
-        <Scenario wallPosition={wallPosition} getNextQuestion={this.getNextQuestion} correctDoor={correctDoor} userPosition={userPosition}/>
+        <Scenario 
+          wallPosition={wallPosition} 
+          getNextQuestion={this.getNextQuestion}
+          correctDoor={correctDoor}
+          userPosition={userPosition}
+          shouldRenderWall={this.state.shouldRenderWall}
+        />
       </div>
     );
   }

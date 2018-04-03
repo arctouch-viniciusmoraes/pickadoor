@@ -1,47 +1,50 @@
 .scenario {
   height: 100%;
-  width: 50%;
+  width: 90%;
   margin: 0 auto;
   background: green;
+  display: flex;
+  flex-direction: row-reverse;
+  overflow: hidden;
+  
+}
+
+.column {
+  width: 10%;
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-.row {
-  width: 100%;
-  height: 10%;
-  display: flex;
-}
-
 .arena {
-  width: 100%;
-  height: 90%;
+  width: 90%;
+  height: 100%;
+  position: relative;
 }
 
 .wall {
   background: maroon;
-  width: 100%;
-  height: 10%;
+  width: 10%;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  z-index: 1;
 }
 
 .spots {
-  width: 25%;
-  height: 100%;
+  width: 100%;
+  height: 25%;
   position: relative;
   bottom: 0;
   top: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 0;
 }
 
 .player {
   width: 20px;
   height: 20px;
   background: black;
-}
-
-@keyframes translateWall {
-  0%   {transform: translateY(0)}
-  100% {transform: translateY(890%)}
 }
